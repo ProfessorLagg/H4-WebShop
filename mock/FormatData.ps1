@@ -104,8 +104,8 @@ if($formatShopItems){
         if(-not $categories.ContainsKey($c)){
             $cid = $cidx++;
             $categories[$c] = [PsCustomObject]@{
-                Id = $cid;
-                Name = $c;
+                id = $cid;
+                name = $c;
             }
         }
         else {
@@ -115,9 +115,9 @@ if($formatShopItems){
         if(-not $sub_categories.ContainsKey($s)){
             $sid = $sidx++;
             $sub_categories[$s] = [PsCustomObject]@{
-                Id = $sid;
-                Name = $s;
-                ParentId = $cid;
+                id = $sid;
+                name = $s;
+                parentId = $cid;
             }
         }
         else {
@@ -127,12 +127,13 @@ if($formatShopItems){
         [double]$priceRound = [Math]::Round([Convert]::ToDouble($srcShopItem.price, $numfmt))
 
         $dstShopItems += [PsCustomObject]@{
-            Name = $srcShopItem.name;
-            Category = [int]$cid;
-            Subcategory = [int]$sid;
-            Description = [string]$srcShopItem.description;
-            Price = $priceRound - 0.01;
-            SalePrice = [Math]::Round($priceRound * 0.80) - 0.01;
+            name = $srcShopItem.name;
+            category = [int]$cid;
+            subcategory = [int]$sid;
+            description = [string]$srcShopItem.description;
+            price = $priceRound - 0.01;
+            salePrice = [Math]::Round($priceRound * 0.80) - 0.01;
+            currency="DKK";
         }
     }
 

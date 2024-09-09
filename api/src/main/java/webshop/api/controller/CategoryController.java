@@ -42,8 +42,9 @@ public class CategoryController {
 		public ResponseEntity<Object> getAll() {
 				List<Category> items = repository.findAll();
 				JSONArray result = new JSONArray();
-				for (Category item : items) {
-						result.put(item.toJSON());
+				for (Category category : items) {
+						JSONObject itemJson = category.toJSON();
+						result.put(itemJson);
 				}
 				return okJSON(result);
 		}
@@ -61,14 +62,14 @@ public class CategoryController {
 		// TODO AUTHENTICATION
 		@PostMapping
 		public ResponseEntity<Object> create(@RequestBody JSONObject inputJson) {
-				Category inputCategory = new Category();
-				inputCategory.parseJSON(inputJson);
-				Integer inputId = inputCategory.getId();
-				if (inputCategory.getId() != null && repository.existsById(inputId)) {
+				Category inCategory = new Category();
+				inCategory.parseJSON(inputJson);
+				Integer inputId = inCategory.getId();
+				if (inCategory.getId() != null && repository.existsById(inputId)) {
 						return ResponseEntity.badRequest().body("there already exists an item with id = " + inputId.toString());
 				}
-				Category category = repository.save(inputCategory);
-				return okJSON(category.toJSON());
+				Category outCategory = repository.save(inCategory);
+				return okJSON(outCategory.toJSON());
 		}
 
 		// TODO AUTHENTICATION

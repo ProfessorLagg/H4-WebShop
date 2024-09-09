@@ -29,4 +29,9 @@ public class Category implements JSONSerializeable {
 		}
 		@Override
 		public String toJSONString() { return this.toJSON().toString(); }
+
+		public Category() {
+				this.id = -1;
+				this.name = "";
+		}
 }

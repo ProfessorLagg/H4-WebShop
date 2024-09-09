@@ -1,4 +1,4 @@
-﻿"Id";"Name";"ParentId"
+﻿"id";"name";"parentId"
 "1";"Car";"1"
 "2";"Gardening";"2"
 "3";"Biking";"3"
