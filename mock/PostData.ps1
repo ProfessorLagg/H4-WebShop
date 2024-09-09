@@ -44,31 +44,15 @@ foreach($sub in $subcategories){
 cls
 Write-Host "posting shop items"
 $url = $rootUrl + $shopitem_create_suburl
+$lines = @()
 foreach($item in $shopitems){
     # Build JSON
     $jsonString = $item | ConvertTo-Json -Compress
-    [byte[]]$jsonBytes = [Encoding]::UTF8.GetBytes($jsonString)
-    # Build Request
-    [System.Net.WebRequest]$request = [System.Net.WebRequest]::CreateHttp($url)
-    $request.ContentType = 'application/json; charset=utf-8'
-    $request.Method = 'POST'
-    $request.body
-    [Stream]$bodyWriteStream = $request.GetRequestStream()
-    $bodyWriteStream.Write($jsonBytes, 0, $jsonBytes.Count)
-    $bodyWriteStream.Close()
-    # Send request
-    $ErrorActionPreference = 'SilentlyContinue'
-    $response = [System.Net.HttpWebResponse]$request.GetResponse()
-    $ErrorActionPreference = 'Stop'
-    if($null -eq $response){
-        Write-Error "`$response was null"
-    }elseif(($response.StatusCode -lt 200) -or ($response.StatusCode -gt 299)){
-        Write-Error "$($response.Headers)`n`n$($response.Content)" -NoNewline
-    }
-
+    $args = "-d '$jsonString' -H `"Content-Type: application/json`" -X POST `"$url`"" 
+    $lines += "curl $args"
     Remove-Variable 'jsonString'
-    Remove-Variable 'jsonBytes'
-    Remove-Variable 'request'
-    Remove-Variable 'bodyWriteStream'
-    Remove-Variable 'response'
 }
+
+$outCmdPath = Join-Path -Path $PSScriptRoot -ChildPath "shopItems.cmd"
+$outCmdContent = "@ECHO OFF`r`n" + "cd %~dp0`r`n" + [string]::Join("`r`n",$lines)
+Set-Content -Path $outCmdPath -Value $outCmdContent
