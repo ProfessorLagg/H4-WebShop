@@ -34,4 +34,10 @@ public class Category implements JSONSerializeable {
 				this.id = -1;
 				this.name = "";
 		}
+
+		public void cloneFrom(Category category) { this.cloneFrom(category, false); }
+		public void cloneFrom(Category category, boolean cloneId) {
+				if (cloneId) { this.id = category.id; }
+				this.name = category.name;
+		}
 }

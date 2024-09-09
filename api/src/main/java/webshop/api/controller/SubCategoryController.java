@@ -1,5 +1,7 @@
 package webshop.api.controller;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import org.hibernate.mapping.Subclass;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -28,34 +30,19 @@ public class SubCategoryController {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND)
 								.body("could not find sub-category with id = " + id.toString());
 		}
-		private static ResponseEntity<Object> okJSON(JSONObject json) {
-				return ResponseEntity
-								.status(HttpStatus.OK)
-								.contentType(MediaType.APPLICATION_JSON)
-								.body(json.toString());
-		}
-		private static ResponseEntity<Object> okJSON(JSONArray json) {
-				return ResponseEntity
-								.status(HttpStatus.OK)
-								.contentType(MediaType.APPLICATION_JSON)
-								.body(json.toString());
-		}
 
 		@GetMapping
 		public ResponseEntity<Object> getAll() {
 				List<SubCategory> items = repository.findAll();
-				JSONArray result = new JSONArray();
-				for (SubCategory item : items) {
-						result.put(item.toJSON());
-				}
-				return okJSON(result);
+				return ResponseEntity.ok(items);
 		}
 
 		@GetMapping("/{id}")
 		public ResponseEntity<Object> get(@PathVariable Integer id) {
-				Optional<SubCategory> categoryOptional = repository.findById(id);
-				if (categoryOptional.isPresent()) {
-						return okJSON(categoryOptional.get().toJSON());
+				Optional<SubCategory> subcategoryOptional = repository.findById(id);
+				if (subcategoryOptional.isPresent()) {
+						SubCategory subCategory = subcategoryOptional.get();
+						return ResponseEntity.ok(subCategory);
 				} else {
 						return notFound(id);
 				}
@@ -63,27 +50,25 @@ public class SubCategoryController {
 
 		// TODO AUTHENTICATION
 		@PostMapping
-		public ResponseEntity<Object> create(@RequestBody JSONObject inputJson) {
-				SubCategory inputCategory = new SubCategory();
-				inputCategory.parseJSON(inputJson);
-				Integer inputId = inputCategory.getId();
-				if (inputCategory.getId() != null && repository.existsById(inputId)) {
+		public ResponseEntity<Object> create(@RequestBody SubCategory inSubcategory) {
+				@Nullable
+				Integer inputId = inSubcategory.getId();
+				if (inputId != null && repository.existsById(inputId)) {
 						return ResponseEntity.badRequest().body("there already exists an item with id = " + inputId.toString());
 				}
-				SubCategory category = repository.save(inputCategory);
-				return okJSON(category.toJSON());
+				SubCategory outSubcategory = repository.save(inSubcategory);
+				return ResponseEntity.ok(outSubcategory);
 		}
 
 		// TODO AUTHENTICATION
 		@PutMapping("/{id}")
-		public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody JSONObject categoryDetails) {
+		public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody SubCategory inSubcategory) {
 				Optional<SubCategory> categoryOptional = repository.findById(id);
 				if (categoryOptional.isPresent()) {
-						categoryDetails.remove("id"); // The route id decides the id in DB to update
 						SubCategory category = categoryOptional.get();
-						category.parseJSON(categoryDetails);
+						category.cloneFrom(inSubcategory, false);
 						repository.save(category);
-						return okJSON(category.toJSON());
+						return ResponseEntity.ok(category);
 				} else { return notFound(id); }
 		}
 
@@ -94,7 +79,7 @@ public class SubCategoryController {
 				if (categoryOptional.isPresent()) {
 						SubCategory category = categoryOptional.get();
 						repository.delete(category);
-						return okJSON(category.toJSON());
+						return ResponseEntity.ok(category);
 				} else { return notFound(id); }
 		}
 }

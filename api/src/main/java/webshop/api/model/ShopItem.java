@@ -2,7 +2,9 @@ package webshop.api.model;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import org.json.JSONObject;
+import webshop.api.DTO.ShopItemDTO;
 import webshop.api.interfaces.JSONSerializeable;
 import webshop.api.repository.CategoryRepository;
 import webshop.api.repository.SubCategoryRepository;
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class ShopItem implements JSONSerializeable {
 		@Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		@Column(name = "Id")
 		private Integer id;
 		public Integer getId() { return this.id; }
 
@@ -112,20 +115,16 @@ public class ShopItem implements JSONSerializeable {
 				this.subCategoryId = item.subCategoryId;
 		}
 
-		public static final ShopItem DEFAULT_ITEM = getDefaultItem();
-		private static ShopItem getDefaultItem() {
-				ShopItem result = new ShopItem();
-				result.id = 0;
-				result.name = "name";
-				result.description = "description";
-				result.currency = Currency.getInstance("DKK");
-				result.price = BigDecimal.valueOf(99.99);
-				result.salePrice = result.price.multiply(BigDecimal.valueOf(0.8));
-				return result;
-		}
-		public static ShopItem getDefaultItem(SubCategory subCategory) {
-				ShopItem result = getDefaultItem();
-				result.setSubCategory(subCategory);
-				return result;
+
+		public ShopItem(ShopItemDTO dto) {
+				if (dto == null) { throw new RuntimeException("input DTO was null"); }
+				if (dto.id != null) { this.id = dto.id; }
+				if (dto.name != null) { this.name = dto.name; }
+				if (dto.description != null) { this.description = dto.description; }
+				if (dto.price != null) { this.price = dto.price; }
+				if (dto.salePrice != null) { this.salePrice = dto.salePrice; }
+				if (dto.currencyCode != null) { this.currency = Currency.getInstance(dto.currencyCode); }
+				if (dto.categoryId != null) { this.categoryId = dto.categoryId; }
+				if (dto.subCategoryId != null) { this.subCategoryId = dto.subCategoryId; }
 		}
 }

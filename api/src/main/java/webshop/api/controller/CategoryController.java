@@ -25,35 +25,19 @@ public class CategoryController {
 		private ResponseEntity<Object> notFound(Integer id) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("could not find category with id = " + id.toString());
 		}
-		private static ResponseEntity<Object> okJSON(JSONObject json) {
-				return ResponseEntity
-								.status(HttpStatus.OK)
-								.contentType(MediaType.APPLICATION_JSON)
-								.body(json.toString());
-		}
-		private static ResponseEntity<Object> okJSON(JSONArray json) {
-				return ResponseEntity
-								.status(HttpStatus.OK)
-								.contentType(MediaType.APPLICATION_JSON)
-								.body(json.toString());
-		}
 
 		@GetMapping
 		public ResponseEntity<Object> getAll() {
 				List<Category> items = repository.findAll();
-				JSONArray result = new JSONArray();
-				for (Category category : items) {
-						JSONObject itemJson = category.toJSON();
-						result.put(itemJson);
-				}
-				return okJSON(result);
+				return ResponseEntity.ok(items);
 		}
 
 		@GetMapping("/{id}")
 		public ResponseEntity<Object> get(@PathVariable Integer id) {
-				Optional<Category> itemOptional = repository.findById(id);
-				if (itemOptional.isPresent()) {
-						return okJSON(itemOptional.get().toJSON());
+				Optional<Category> categoryOptional = repository.findById(id);
+				if (categoryOptional.isPresent()) {
+						Category category = categoryOptional.get();
+						return ResponseEntity.ok(category);
 				} else {
 						return notFound(id);
 				}
@@ -61,27 +45,24 @@ public class CategoryController {
 
 		// TODO AUTHENTICATION
 		@PostMapping
-		public ResponseEntity<Object> create(@RequestBody JSONObject inputJson) {
-				Category inCategory = new Category();
-				inCategory.parseJSON(inputJson);
+		public ResponseEntity<Object> create(@RequestBody Category inCategory) {
 				Integer inputId = inCategory.getId();
 				if (inCategory.getId() != null && repository.existsById(inputId)) {
 						return ResponseEntity.badRequest().body("there already exists an item with id = " + inputId.toString());
 				}
 				Category outCategory = repository.save(inCategory);
-				return okJSON(outCategory.toJSON());
+				return ResponseEntity.ok(outCategory);
 		}
 
 		// TODO AUTHENTICATION
 		@PutMapping("/{id}")
-		public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody JSONObject categoryDetails) {
+		public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody Category inCategory) {
 				Optional<Category> categoryOptional = repository.findById(id);
 				if (categoryOptional.isPresent()) {
-						categoryDetails.remove("id"); // The route id decides the id in DB to update
 						Category category = categoryOptional.get();
-						category.parseJSON(categoryDetails);
-						repository.save(category);
-						return okJSON(category.toJSON());
+						category.cloneFrom(inCategory, false);
+						Category outCategory = repository.save(category);
+						return ResponseEntity.ok(outCategory);
 				} else { return notFound(id); }
 		}
 
@@ -92,7 +73,7 @@ public class CategoryController {
 				if (categoryOptional.isPresent()) {
 						Category category = categoryOptional.get();
 						repository.delete(category);
-						return okJSON(category.toJSON());
+						return ResponseEntity.ok(category);
 				} else { return notFound(id); }
 		}
 }

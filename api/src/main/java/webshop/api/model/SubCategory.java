@@ -12,6 +12,8 @@ import java.util.List;
 @Table(name = "SubCategory")
 public class SubCategory implements JSONSerializeable {
 		@Id
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		@Column(name = "Id")
 		private Integer id;
 		public Integer getId() { return this.id; }
 
@@ -39,4 +41,11 @@ public class SubCategory implements JSONSerializeable {
 		}
 		@Override
 		public String toJSONString() { return this.toJSON().toString(); }
+
+		public void cloneFrom(SubCategory subcategory) { this.cloneFrom(subcategory, false); }
+		public void cloneFrom(SubCategory subcategory, boolean cloneId) {
+				if (cloneId) { this.id = subcategory.id; }
+				this.name = subcategory.name;
+				this.parentId = subcategory.parentId;
+		}
 }
