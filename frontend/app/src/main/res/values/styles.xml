@@ -1,5 +1,2 @@
 <resources>
-    <style name="Widget.Theme.BuyStuff.MyView" parent="">
-        <item name="android:background">@color/black</item>
-    </style>
 </resources>
