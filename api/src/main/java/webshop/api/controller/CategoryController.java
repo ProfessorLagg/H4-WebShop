@@ -1,12 +1,9 @@
 package webshop.api.controller;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import webshop.api.GlobalUtils;
 import webshop.api.model.*;
 import webshop.api.repository.*;
 
@@ -19,61 +16,51 @@ public class CategoryController {
 		@Autowired
 		private CategoryRepository repository;
 
-		private ResponseEntity<Object> notFound() {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("could not find category");
-		}
-		private ResponseEntity<Object> notFound(Integer id) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("could not find category with id = " + id.toString());
+		// (C)RUD
+		@PostMapping
+		public ResponseEntity<Object> create(@RequestBody Category in) {
+				if (in.id != null && repository.existsById(in.id)) { return GlobalUtils.alreadyExists("category", in.id); }
+				Category out = repository.save(in);
+				return ResponseEntity.ok(out);
 		}
 
+		// C(R)UD
 		@GetMapping
-		public ResponseEntity<Object> getAll() {
-				List<Category> items = repository.findAll();
-				return ResponseEntity.ok(items);
-		}
-
+		public List<Category> readAll() { return repository.findAll(); }
 		@GetMapping("/{id}")
-		public ResponseEntity<Object> get(@PathVariable Integer id) {
-				Optional<Category> categoryOptional = repository.findById(id);
-				if (categoryOptional.isPresent()) {
-						Category category = categoryOptional.get();
+		public ResponseEntity<Object> read(@PathVariable Integer id) {
+				Optional<Category> optional = repository.findById(id);
+				if (optional.isPresent()) {
+						Category category = optional.get();
 						return ResponseEntity.ok(category);
 				} else {
-						return notFound(id);
+						return GlobalUtils.notFound("category", id);
 				}
 		}
 
-		// TODO AUTHENTICATION
-		@PostMapping
-		public ResponseEntity<Object> create(@RequestBody Category inCategory) {
-				Integer inputId = inCategory.getId();
-				if (inCategory.getId() != null && repository.existsById(inputId)) {
-						return ResponseEntity.badRequest().body("there already exists an item with id = " + inputId.toString());
-				}
-				Category outCategory = repository.save(inCategory);
-				return ResponseEntity.ok(outCategory);
-		}
-
-		// TODO AUTHENTICATION
+		// CR(U)D
 		@PutMapping("/{id}")
-		public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody Category inCategory) {
-				Optional<Category> categoryOptional = repository.findById(id);
-				if (categoryOptional.isPresent()) {
-						Category category = categoryOptional.get();
-						category.cloneFrom(inCategory, false);
-						Category outCategory = repository.save(category);
-						return ResponseEntity.ok(outCategory);
-				} else { return notFound(id); }
+		public ResponseEntity<Object> update(@PathVariable Integer id, @RequestBody Category in) {
+				Optional<Category> optional = repository.findById(id);
+				if (optional.isPresent()) {
+						Category category = optional.get();
+						category.cloneFrom(in, false);
+						return ResponseEntity.ok(category);
+				} else {
+						return GlobalUtils.notFound("category", id);
+				}
 		}
 
-		// TODO AUTHENTICATION
+		// CRU(D)
 		@DeleteMapping("/{id}")
-		public ResponseEntity<Object> deleteById(@PathVariable Integer id) {
-				Optional<Category> categoryOptional = repository.findById(id);
-				if (categoryOptional.isPresent()) {
-						Category category = categoryOptional.get();
+		public ResponseEntity<Object> delete(@PathVariable Integer id) {
+				Optional<Category> optional = repository.findById(id);
+				if (optional.isPresent()) {
+						Category category = optional.get();
 						repository.delete(category);
 						return ResponseEntity.ok(category);
-				} else { return notFound(id); }
+				} else {
+						return GlobalUtils.notFound("category", id);
+				}
 		}
 }

@@ -1,43 +1,20 @@
 package webshop.api.model;
 
 import jakarta.persistence.*;
-import org.json.JSONObject;
-import webshop.api.interfaces.JSONSerializeable;
 
+//@Embeddable
 @Entity
-@Table(name = "Category")
-public class Category implements JSONSerializeable {
+public class Category {
 		@Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
-		@Column(name = "Id")
-		private Integer id;
-		public Integer getId() { return this.id; }
+		@Column(name = "id")
+		public Integer id;
 
-		@Column(name = "Name")
+		@Column(name = "name")
 		public String name;
-		@Override
-		public JSONObject toJSON() {
-				JSONObject result = new JSONObject();
-				result.put("id", this.id);
-				result.put("name", this.name);
-				return result;
-		}
-		@Override
-		public void parseJSON(JSONObject json) {
-				if (json.has("id")) { this.id = json.getInt("id"); }
-				if (json.has("name")) { this.name = json.getString("name"); }
-		}
-		@Override
-		public String toJSONString() { return this.toJSON().toString(); }
 
-		public Category() {
-				this.id = -1;
-				this.name = "";
-		}
-
-		public void cloneFrom(Category category) { this.cloneFrom(category, false); }
-		public void cloneFrom(Category category, boolean cloneId) {
-				if (cloneId) { this.id = category.id; }
-				this.name = category.name;
+		public void cloneFrom(Category other, boolean cloneId) {
+				if (cloneId && other.id != null) { this.id = other.id; }
+				if (other.name != null) { this.name = other.name; }
 		}
 }
