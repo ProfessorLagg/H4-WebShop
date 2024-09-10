@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="serverHostNames">
-        <item>localhost</item>
-        <item>176.16.1.10</item>
+        <item>localhost:8080</item>
+        <item>176.16.1.10:8080</item>
     </string-array>
-    <integer name="httpPort">8080</integer>
     <string name="categoryHttpPath">/category</string>
 
     <bool name="use_https">false</bool>

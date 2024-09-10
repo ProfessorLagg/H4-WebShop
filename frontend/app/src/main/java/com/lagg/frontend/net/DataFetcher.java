@@ -26,14 +26,30 @@ import java.util.concurrent.*;
 // https://www.baeldung.com/java-http-request
 public class DataFetcher {
 		// STATIC VALUES
-		private static final Executor executor = Executors.newFixedThreadPool(1);
+		private static final Executor executor = Executors.newFixedThreadPool(2);
 		private static final String TAG = "DataFetcher";
+		private static void LogDebug(String method, UrlRequest request, UrlResponseInfo info) {
+				String msg = method + ':';
+				if (info != null) {
+						msg += "\n\tinfo: " + info.getUrl() + ' ' + info.getHttpStatusText() + "\n";
+				}
+				if (request != null) {
+						msg += "\n\trequest: " + request;
+				}
+				Log.d(TAG, msg);
+		}
+		private static void LogError(String method, UrlResponseInfo info, Exception e) {
+				String msg = method + ':';
+				if (info != null) {
+						msg += "\n\tinfo: " + info.getUrl() + ' ' + info.getHttpStatusText() + "\n";
+				}
+				Log.e(TAG, msg, e);
+		}
 		//  VALUES
 		private final CronetEngine cronetEngine;
 		private final String[] serverHostNames;
 		private final boolean useHttps;
-		private final int httpPort;
-		private final int requestTimeout;
+		private final long requestTimeout;
 
 		private final String categoryHttpPath;
 
@@ -42,9 +58,7 @@ public class DataFetcher {
 				Resources resources = context.getResources();
 				this.serverHostNames = resources.getStringArray(R.array.serverHostNames);
 				this.useHttps = resources.getBoolean(R.bool.use_https);
-				this.httpPort = resources.getInteger(R.integer.httpPort);
 				this.requestTimeout = resources.getInteger(R.integer.requestTimeout);
-
 				this.categoryHttpPath = resources.getString(R.string.categoryHttpPath);
 
 
@@ -68,7 +82,7 @@ public class DataFetcher {
 		) {
 				String urlstring = Utils.getUrlString(host, path, useHttps, urlParameters);
 				UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(urlstring, callback, executor);
-
+				requestBuilder.setHttpMethod(method);
 				if (headers != null && !headers.isEmpty()) {
 						String v = "";
 						for (String k : headers.keySet()) {
@@ -82,16 +96,29 @@ public class DataFetcher {
 		// CATEGORY
 		private final Map<Integer, Category> categoryCache = new HashMap<>();
 		private void handleCategoriesResponse(UrlRequest request, UrlResponseInfo info) {
-				Log.d(TAG, "handleCategoriesResponse: " + info);
+				LogDebug("handleCategoriesResponse", request, info);
 		}
 		private void loadCategories() {
-				Log.d(TAG, "loadCategories: ");
 				categoryCache.clear();
-				for (String host : serverHostNames) {
-						GenericRequestCallback callback = new GenericRequestCallback(this::handleCategoriesResponse);
-						UrlRequest request = buildRequest("GET", host, categoryHttpPath, callback);
+				GenericRequestCallback[] callbacks = new GenericRequestCallback[serverHostNames.length];
+				for (int i = 0; i < serverHostNames.length; i++) {
+						String host = serverHostNames[i];
+						callbacks[i] = new GenericRequestCallback(this::handleCategoriesResponse);
+						UrlRequest request = buildRequest("GET", host, categoryHttpPath, callbacks[i]);
+						Log.d(TAG, "loadCategories: GET " + Utils.getUrlString(host, categoryHttpPath, useHttps) + '(' +
+										request.toString() + ')');
 						request.start();
 				}
+
+				boolean waitForLoad;
+				do {
+						waitForLoad = false;
+						for (GenericRequestCallback callback : callbacks) {
+								boolean finished = callback.finished();
+
+								if (!finished) { waitForLoad = true; }
+						}
+				} while (waitForLoad);
 		}
 
 		public Optional<Category> getCategory(Integer id) {
