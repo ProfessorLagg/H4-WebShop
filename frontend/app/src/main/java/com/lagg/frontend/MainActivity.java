@@ -1,5 +1,6 @@
 package com.lagg.frontend;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
@@ -7,6 +8,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.lagg.frontend.model.Category;
+import com.lagg.frontend.net.DataFetcher;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -19,5 +27,13 @@ public class MainActivity extends AppCompatActivity {
 						v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 						return insets;
 				});
+
+				this.init();
+		}
+
+		private DataFetcher dataFetcher;
+		private void init() {
+				dataFetcher = new DataFetcher(getBaseContext());
+				Optional<Category> optionalCategory = this.dataFetcher.getCategory(1);
 		}
 }
