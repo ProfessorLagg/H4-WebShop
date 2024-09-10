@@ -1,6 +1,12 @@
 package com.lagg.frontend;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
+
+import kotlin.text.UStringsKt;
 
 public class Utils {
 		public static String trimStart(String s, char c) {
@@ -59,5 +65,40 @@ public class Utils {
 				while (!syncRunnable.isStarted() && !syncRunnable.isFinished()) { }
 		}
 
+		public static String getUrlString(String host, String path, boolean useHttps) {
+				return getUrlString(host, path, useHttps, null);
+		}
+		public static String getUrlString(String host, String path, boolean useHttps, Map<String, String> urlParams) {
+				String h = Utils.trim(host.trim(), '/');
+				String p = Utils.trim(path.trim(), '/');
+				String url = (useHttps ? "https://" : "http://") + h + '/' + p;
 
+				if (urlParams != null && !urlParams.isEmpty()) {
+						url += getParamsString(urlParams, false);
+				}
+
+				return url;
+		}
+
+		public static String getParamsString(Map<String, String> parameters) { return getParamsString(parameters, false); }
+		public static String getParamsString(Map<String, String> parameters, boolean urlEncode) {
+				StringBuilder sb = new StringBuilder();
+				char prependChar = '?';
+				for (String k : parameters.keySet()) {
+						String v = parameters.get(k);
+						sb.append(prependChar);
+						sb.append(k);
+						sb.append('=');
+						sb.append(v);
+						if (prependChar == '?') { prependChar = '&'; }
+				}
+				String paramsString = sb.toString();
+				String result = paramsString;
+				if (urlEncode) {
+						// SAFE TO IGNORE UnsupportedEncodingException
+						try { result = URLEncoder.encode(paramsString, "UTF-8"); } catch (UnsupportedEncodingException e) { }
+				}
+
+				return result;
+		}
 }
