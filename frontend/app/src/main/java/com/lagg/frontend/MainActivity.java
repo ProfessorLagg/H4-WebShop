@@ -33,19 +33,16 @@ public class MainActivity extends AppCompatActivity {
 		this.init();
 	}
 
-	private DataFetcher dataFetcher;
-
 	private void init() {
-		dataFetcher = new DataFetcher(getBaseContext());
-		Optional<Category> optionalCategory = this.dataFetcher.getCategory(1);
+		DataFetcher.init(getBaseContext());
+		Optional<Category> optionalCategory = DataFetcher.getCategory(1);
 		String categoryString = "null";
 		if (optionalCategory.isPresent()) {
 			try {
 				categoryString = optionalCategory.get().toJson().toString();
-			} catch (Exception ignored) {
-			}
-
+			} catch (Exception ignored) {}
 		}
 		Log.d(TAG, "init: fetched category: " + categoryString);
 	}
+
 }

@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="serverHostNames">
-        <item>localhost:8080</item>
-        <item>176.16.1.10:8080</item>
-        <item>10.131.210.5:8080</item>
-    </string-array>
-    <string name="categoryHttpPath">/category</string>
+	<string name="serverHostName">10.131.210.5:8080</string>
+<!--	<string-array name="serverHostNames">-->
 
-    <bool name="use_https">false</bool>
-    <integer name="requestTimeout">5000</integer>
+<!--		<item>localhost:8080</item>-->
+<!--		<item>176.16.1.10:8080</item>-->
+<!--	</string-array>-->
+
+	<string name="categoryHttpPath">/category</string>
+
+	<bool name="use_https">false</bool>
+	<integer name="requestTimeout">5000</integer>
 </resources>

@@ -82,8 +82,7 @@ public class Utils {
 		return getUrlString(host, path, useHttps, null);
 	}
 
-	public static String getUrlString(String host, String path, boolean useHttps,
-									  Map<String, String> urlParams) {
+	public static String getUrlString(String host, String path, boolean useHttps, Map<String, String> urlParams) {
 		String h = Utils.trim(host.trim(), '/');
 		String p = Utils.trim(path.trim(), '/');
 		String url = (useHttps ? "https://" : "http://") + h + '/' + p;

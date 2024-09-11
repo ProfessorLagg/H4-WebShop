@@ -12,6 +12,11 @@ public class Category implements JsonSerializeable {
 	public Integer id;
 	public String name;
 
+	public Category() {
+		this.id = -1;
+		this.name = "null";
+	}
+
 	public static Optional<Category> fromJSONObject(JSONObject jsonObject) {
 		try {
 			Category result = new Category();
@@ -36,5 +41,18 @@ public class Category implements JsonSerializeable {
 	public void loadJson(JSONObject jsonObject) throws JSONException {
 		this.id = jsonObject.getInt("id");
 		this.name = jsonObject.getString("name");
+	}
+
+	@Override
+	public void loadJson(String jsonString) throws JSONException {
+		this.loadJson(new JSONObject(jsonString));
+	}
+
+
+	@Override
+	public String toString() {
+		String id_str = this.id == null ? "null" : this.id.toString();
+		String name_str = this.name == null ? "null" : this.name;
+		return "{\"id\"=" + id_str + ", \"name\"=\"" + name_str + "\"}";
 	}
 }

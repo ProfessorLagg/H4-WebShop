@@ -7,4 +7,6 @@ public interface JsonSerializeable {
 	JSONObject toJson() throws JSONException;
 
 	void loadJson(JSONObject jsonObject) throws JSONException;
+
+	void loadJson(String jsonString) throws JSONException;
 }

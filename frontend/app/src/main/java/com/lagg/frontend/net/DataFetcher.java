@@ -4,33 +4,54 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
-
-import com.lagg.frontend.CallbackRunnable;
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.NoCache;
+import com.android.volley.toolbox.StringRequest;
 import com.lagg.frontend.R;
-import com.lagg.frontend.ThreadPerTaskExecutor;
 import com.lagg.frontend.Utils;
 import com.lagg.frontend.model.Category;
 
-import org.chromium.net.CronetEngine;
-import org.chromium.net.CronetException;
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlResponseInfo;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.*;
 
 // https://www.baeldung.com/java-http-request
 public class DataFetcher {
-	// STATIC VALUES
-	private static final Executor executor = Executors.newFixedThreadPool(2);
+	// VALUES
+//	private static final Executor executor = Executors.newFixedThreadPool(2);
+	private static RequestQueue requestQueue;
+	private static Cache requestCache;
+	private static Network requestNetwork;
+	private static String serverHostName;
+	private static boolean useHttps;
+	private static long requestTimeout;
+	private static String categoryHttpPath;
+	private static Map<Integer, Category> categoryCache;
+
+	// CONSTRUCTORS
+	public static void init(Context context) {
+		Resources resources = context.getResources();
+		serverHostName = resources.getString(R.string.serverHostName);
+		useHttps = resources.getBoolean(R.bool.use_https);
+		requestTimeout = resources.getInteger(R.integer.requestTimeout);
+		categoryHttpPath = resources.getString(R.string.categoryHttpPath);
+		categoryCache = new HashMap<>();
+
+
+		requestCache = new NoCache();
+		requestNetwork = new BasicNetwork(new HurlStack());
+		requestQueue = new RequestQueue(requestCache, requestNetwork);
+
+	}
+
+	// LOGGING
 	private static final String TAG = "DataFetcher";
 
 	private static void LogDebug(String method, UrlRequest request, UrlResponseInfo info) {
@@ -52,104 +73,93 @@ public class DataFetcher {
 		Log.e(TAG, msg, e);
 	}
 
-	//  VALUES
-	private final CronetEngine cronetEngine;
-	private final String[] serverHostNames;
-	private final boolean useHttps;
-	private final long requestTimeout;
-
-	private final String categoryHttpPath;
-
-	// CONSTRUCTORS
-	public DataFetcher(Context context) {
-		Resources resources = context.getResources();
-		this.serverHostNames = resources.getStringArray(R.array.serverHostNames);
-		this.useHttps = resources.getBoolean(R.bool.use_https);
-		this.requestTimeout = resources.getInteger(R.integer.requestTimeout);
-		this.categoryHttpPath = resources.getString(R.string.categoryHttpPath);
-
-
-		CronetEngine.Builder engineBuilder = new CronetEngine.Builder(context);
-		this.cronetEngine = engineBuilder.build();
-		loadCategories();
-	}
-
 	// NETWORKING
-	private UrlRequest buildRequest(String method, String host, String path, UrlRequest.Callback callback) {
-		return this.buildRequest(method, host, path, null, null, null, callback);
-	}
 
-	private UrlRequest buildRequest(
-			String method,
-			String host,
-			String path,
-			@Nullable Map<String, String> urlParameters,
-			@Nullable Map<String, String> headers,
-			@Nullable byte[] body,
-			UrlRequest.Callback callback
-	) {
-		String urlstring = Utils.getUrlString(host, path, useHttps, urlParameters);
-		UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(urlstring, callback, executor);
-		requestBuilder.setHttpMethod(method);
-		if (headers != null && !headers.isEmpty()) {
-			String v = "";
-			for (String k : headers.keySet()) {
-				v = headers.get(k);
-				requestBuilder.addHeader(k, v);
-			}
+	private static class RequestErrorHandler implements Response.ErrorListener {
+		private boolean handled = false;
+		private final String requestUrl;
+
+		public RequestErrorHandler(String requestUrl) {
+			this.requestUrl = requestUrl;
 		}
 
-		return requestBuilder.build();
+		@Override
+		public void onErrorResponse(VolleyError error) {
+			Log.e(TAG, "error in request to " + this.requestUrl, error);
+		}
+	}
+
+	private static class StringResponseHandler implements Response.Listener<String> {
+		public boolean handled;
+		private final Response.Listener<String> listener;
+
+		public StringResponseHandler(Response.Listener<String> listener) {
+			this.handled = false;
+			this.listener = listener;
+		}
+
+		@Override
+		public void onResponse(String response) {
+			this.listener.onResponse(response);
+			this.handled = true;
+		}
 	}
 
 	// CATEGORY
-	private final Map<Integer, Category> categoryCache = new HashMap<>();
-
-	private void handleCategoriesResponse(UrlRequest request, UrlResponseInfo info, byte[] body) {
-		LogDebug("handleCategoriesResponse", request, info);
-		if(body.length == 0){
-			return;
-		}
-		String bodyString = new String(body, StandardCharsets.UTF_8);
-		JSONArray categoriesJson;
+	private static void parseCategory(String jsonString) {
 		try {
-			categoriesJson = new org.json.JSONArray(bodyString);
-			int len = categoriesJson.length();
-			for (int i = 0; i < len; i++) {
-				JSONObject jsonObject = categoriesJson.getJSONObject(i);
-				Optional<Category> optionalCategory = Category.fromJSONObject(jsonObject);
-				if (optionalCategory.isPresent()) {
-					Category category = optionalCategory.get();
-					this.categoryCache.put(category.id, category);
-				}
-			}
-		} catch (JSONException jsonException) {
-			Log.e(TAG, "could not parse categories json", jsonException);
-			return;
+			Category category = new Category();
+			category.loadJson(jsonString);
+			categoryCache.put(category.id, category);
+			Log.d(TAG, "parseCategory: parsed json string '" + jsonString + "' as Category");
+		} catch (Exception e) {
+			Log.e(TAG, "parseCategory: could not parse json string '" + jsonString + "' as Category", e);
 		}
 	}
 
-	private void loadCategories() {
-		categoryCache.clear();
-		for (int i = 0; i < serverHostNames.length; i++) {
-			String host = serverHostNames[i];
-			GenericRequestCallback callback = new GenericRequestCallback(this::handleCategoriesResponse);
-			UrlRequest request = buildRequest("GET", host, categoryHttpPath, callback);
-			Log.d(TAG, "loadCategories: GET " + Utils.getUrlString(host, categoryHttpPath, useHttps) + '(' +
-					request.toString() + ')');
-			request.start();
-			if (callback.getState() == GenericRequestCallback.CallbackState.SUCCEEDED) {
-				break;
-			}
+	public static Optional<Category> loadCategory(Integer id) {
+		if (id == null || id <= 0) {
+			return Optional.empty();
 		}
-	}
+		String url = Utils.getUrlString(serverHostName, categoryHttpPath + "/" + id, useHttps);
+		Log.d(TAG, "loadCategory: " + url);
+		RequestErrorHandler errorHandler = new RequestErrorHandler(url);
+		StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseCategory);
+		StringRequest request = new StringRequest(url, responseHandler, errorHandler);
+		requestQueue.add(request);
+		requestQueue.start();
+		while (!errorHandler.handled && !responseHandler.handled) {
+			// WAITING FOR THE REQUEST TO FINISH
+		}
 
-	public Optional<Category> getCategory(Integer id) {
-		Log.d(TAG, "getCategory: " + id);
 		Category result = categoryCache.get(id);
 		if (result == null) {
 			return Optional.empty();
 		}
 		return Optional.of(result);
+	}
+
+	public static Optional<Category> getCategory(Integer id) {
+		Log.d(TAG, "getCategory: " + id);
+		Optional<Category> result = Optional.empty();
+
+		if (categoryCache.containsKey(id)) {
+			Category category = categoryCache.get(id);
+			if (category != null) {
+				result = Optional.of(category);
+			} else {
+				result = loadCategory(id);
+			}
+		} else {
+			result = loadCategory(id);
+		}
+
+		if (result.isPresent()) {
+			Log.d(TAG, "getCategory: found category " + result.get());
+		} else {
+			String id_str = id == null ? "null" : id.toString();
+			Log.d(TAG, "getCategory: could not find category with id = " + id_str);
+		}
+		return result;
 	}
 }
