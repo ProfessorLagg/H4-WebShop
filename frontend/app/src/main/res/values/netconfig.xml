@@ -3,6 +3,7 @@
     <string-array name="serverHostNames">
         <item>localhost:8080</item>
         <item>176.16.1.10:8080</item>
+        <item>10.131.210.5:8080</item>
     </string-array>
     <string name="categoryHttpPath">/category</string>
 
