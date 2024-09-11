@@ -8,6 +8,7 @@
 <!--	</string-array>-->
 
 	<string name="categoryHttpPath">/category</string>
+	<string name="productHttpPath">/product</string>
 
 	<bool name="use_https">false</bool>
 	<integer name="requestTimeout">5000</integer>

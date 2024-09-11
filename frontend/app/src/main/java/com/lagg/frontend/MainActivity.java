@@ -29,20 +29,12 @@ public class MainActivity extends AppCompatActivity {
 			v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
 			return insets;
 		});
-
+		DataFetcher.init(getBaseContext());
 		this.init();
 	}
 
 	private void init() {
-		DataFetcher.init(getBaseContext());
-		Optional<Category> optionalCategory = DataFetcher.getCategory(1);
-		String categoryString = "null";
-		if (optionalCategory.isPresent()) {
-			try {
-				categoryString = optionalCategory.get().toJson().toString();
-			} catch (Exception ignored) {}
-		}
-		Log.d(TAG, "init: fetched category: " + categoryString);
+		
 	}
 
 }

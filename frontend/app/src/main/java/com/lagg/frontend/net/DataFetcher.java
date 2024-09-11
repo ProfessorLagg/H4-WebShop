@@ -16,10 +16,15 @@ import com.android.volley.toolbox.StringRequest;
 import com.lagg.frontend.R;
 import com.lagg.frontend.Utils;
 import com.lagg.frontend.model.Category;
+import com.lagg.frontend.model.Product;
 
 import org.chromium.net.UrlRequest;
 import org.chromium.net.UrlResponseInfo;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 // https://www.baeldung.com/java-http-request
@@ -32,8 +37,12 @@ public class DataFetcher {
 	private static String serverHostName;
 	private static boolean useHttps;
 	private static long requestTimeout;
+
 	private static String categoryHttpPath;
 	private static Map<Integer, Category> categoryCache;
+
+	private static String productHttpPath;
+	private static Map<Integer, Product> productCache;
 
 	// CONSTRUCTORS
 	public static void init(Context context) {
@@ -41,14 +50,15 @@ public class DataFetcher {
 		serverHostName = resources.getString(R.string.serverHostName);
 		useHttps = resources.getBoolean(R.bool.use_https);
 		requestTimeout = resources.getInteger(R.integer.requestTimeout);
-		categoryHttpPath = resources.getString(R.string.categoryHttpPath);
-		categoryCache = new HashMap<>();
-
-
 		requestCache = new NoCache();
 		requestNetwork = new BasicNetwork(new HurlStack());
 		requestQueue = new RequestQueue(requestCache, requestNetwork);
 
+		categoryHttpPath = resources.getString(R.string.categoryHttpPath);
+		categoryCache = new HashMap<>();
+
+		productHttpPath = resources.getString(R.string.productHttpPath);
+		productCache = new HashMap<>();
 	}
 
 	// LOGGING
@@ -161,5 +171,53 @@ public class DataFetcher {
 			Log.d(TAG, "getCategory: could not find category with id = " + id_str);
 		}
 		return result;
+	}
+
+	private static void parseAllCategories(String body) {
+		JSONArray jsonArray;
+		try {
+			jsonArray = new JSONArray(body);
+		} catch (JSONException je) {
+			Log.e(TAG, "parseAllCategories: could not parse '" + body + "' as a JSON array", je);
+			return;
+		}
+
+		int len = jsonArray.length();
+		for (int i = 0; i < len; i++) {
+			try {
+				JSONObject jsonObject = jsonArray.getJSONObject(i);
+				Optional<Category> categoryOptional = Category.fromJSONObject(jsonObject);
+				if (categoryOptional.isPresent()) {
+					Category category = categoryOptional.get();
+					if (category.id != null && category.id > 0) {
+						categoryCache.put(category.id, category);
+					}
+				} else {
+					Log.e(TAG, "parseAllCategories: could not convert JSONObject '" + jsonObject.toString() + "' to Category");
+				}
+			} catch (JSONException je) {
+				Log.d(TAG, "parseAllCategories: could not get JSON object at index " + i);
+			}
+		}
+	}
+
+	public static List<Category> loadAllCategories() {
+		Log.d(TAG, "getAllCategories");
+		String url = Utils.getUrlString(serverHostName, categoryHttpPath, useHttps);
+		RequestErrorHandler errorHandler = new RequestErrorHandler(url);
+		StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseAllCategories);
+		StringRequest request = new StringRequest(url, responseHandler, errorHandler);
+		requestQueue.add(request);
+		requestQueue.start();
+		while (!errorHandler.handled && !responseHandler.handled) {
+			// WAITING FOR THE REQUEST TO FINISH
+		}
+
+		return new ArrayList<>(categoryCache.values());
+	}
+
+	// PRODUCT
+	public static void getProduct(Integer id){
+
 	}
 }
