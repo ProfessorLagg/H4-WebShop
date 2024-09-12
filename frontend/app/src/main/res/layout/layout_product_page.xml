@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="34sp"
+    android:background="@color/md_theme_background"
+    >
+
+
+    <TextView
+        android:id="@+id/product_page_title"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:text="product title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Material.Display1"
+        android:textAlignment="viewStart"
+        android:layout_margin="34sp" />
+
+    <TextView
+        android:id="@+id/product_page_description"
+        android:layout_below="@id/product_page_title"
+        android:layout_toRightOf="@id/product_page_image"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse tincidunt augue lectus, ac elementum leo ullamcorper non. Praesent ut massa ex. Proin dictum blandit ligula eu molestie. Aenean efficitur ante vitae congue venenatis. Suspendisse non dui nec tellus mollis elementum eu sed massa. Nullam mattis quis mauris ac ultricies. Duis gravida sit amet lectus non vulputate. Nullam rutrum libero risus, quis lacinia sapien mattis id. Aenean aliquet lorem et tortor dapibus, molestie pretium eros facilisis. Nam nec massa dui. Sed eget odio pharetra, lacinia metus sed, tincidunt libero. Nulla congue imperdiet viverra. Etiam porttitor pharetra erat, at gravida nibh eleifend quis. Nam ut augue non nisl pulvinar ultrices sed quis sem."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@android:style/TextAppearance.Material.Body2"
+        android:padding="14sp" />
+
+
+    <ImageView
+        android:id="@+id/product_page_image"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/product_page_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="540px"
+        android:minHeight="640px"
+        app:srcCompat="@drawable/placeholder" />
+
+    <ImageButton
+        android:id="@+id/product_page_cart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/product_page_image"
+        android:layout_below="@id/product_page_image"
+        app:srcCompat="@drawable/outline_add_shopping_cart_24"
+        android:background="@color/md_theme_surface"
+        app:tint="@color/md_theme_onBackground"/>
+</RelativeLayout>

@@ -81,7 +81,7 @@ for($i = 0; $i -lt $products.Count; $i++){
         filepath = $imageNewPath
     }
 
-    $product.image = $imageFilename
+    $product.image = $imageNewName
     
     $categoryName = $product.category
     $product.category = $categories | Where-Object {$_.Name -ieq $categoryName} #| Select-Object -ExpandProperty id

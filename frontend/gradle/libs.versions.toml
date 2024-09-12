@@ -12,6 +12,7 @@ lifecycleLivedataKtx = "2.8.4"
 lifecycleViewmodelKtx = "2.8.4"
 playServicesCronet = "18.1.0"
 volley = "1.2.1"
+picasso = "2.71828"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +27,7 @@ lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-lived
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 play-services-cronet = { module = "com.google.android.gms:play-services-cronet", version.ref = "playServicesCronet" }
 volley = { module = "com.android.volley:volley", version.ref = "volley" }
+picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.play.services.cronet)
     implementation(libs.volley)
+    implementation(libs.picasso)
 
 //    testImplementation(libs.junit)
 //    androidTestImplementation(libs.ext.junit)

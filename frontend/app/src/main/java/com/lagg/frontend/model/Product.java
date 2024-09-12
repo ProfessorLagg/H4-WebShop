@@ -27,7 +27,7 @@ public class Product implements JsonSerializeable {
 		// TODO SAVE THE IMAGES IN THE DATABASE AND MAKE A CONTROLLER
 		public String image;
 
-		public Integer categoryId;
+		public Category category;
 		@Override
 		public JSONObject toJson() throws JSONException {
 				JSONObject result = new JSONObject();
@@ -36,7 +36,7 @@ public class Product implements JsonSerializeable {
 				result.put("price", this.price);
 				result.put("description", this.description);
 				result.put("image", this.image);
-				result.put("categoryId", this.categoryId);
+				result.put("category", this.category);
 				return result;
 		}
 		@Override
@@ -46,7 +46,8 @@ public class Product implements JsonSerializeable {
 				this.price = BigDecimal.valueOf(jsonObject.getDouble("price"));
 				this.description = jsonObject.getString("description");
 				this.image = jsonObject.getString("image");
-				this.categoryId = jsonObject.getInt("categoryId");
+				this.category = new Category();
+				this.category.loadJson(jsonObject.getJSONObject("category"));
 		}
 		@Override
 		public void loadJson(String jsonString) throws JSONException {
@@ -63,7 +64,7 @@ public class Product implements JsonSerializeable {
 				fields.add("\"price\": " + this.price.toString());
 				fields.add("\"description\": \"" + this.description + '"');
 				fields.add("\"image\": \"" + this.image + '"');
-				fields.add("\"categoryId\": " + this.categoryId.toString());
+				fields.add("\"category: " + this.category.toString());
 
 				return "{" + String.join(", ", fields) + "}";
 		}

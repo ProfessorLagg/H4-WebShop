@@ -4,12 +4,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:minHeight="48dp"
-    android:minWidth="48dp">
+    android:minWidth="48dp"
+    android:paddingHorizontal="12sp"
+    android:layout_margin="8dp">
 
-    <TextView
+    <Button
         android:id="@+id/categoryTitle"
         android:text="Title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
         android:textSize="32sp" />

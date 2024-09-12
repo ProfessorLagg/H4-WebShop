@@ -6,6 +6,7 @@
 
 	<string name="categoryHttpPath">/category</string>
 	<string name="productHttpPath">/product</string>
+	<string name="imageHttpPath">/img</string>
 	<string name="productByCategoryHttpPath">/product/bycat</string>
 	<bool name="use_https">false</bool>
 	<integer name="requestTimeout">5000</integer>
