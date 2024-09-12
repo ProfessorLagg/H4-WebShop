@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="serverHostName">10.131.210.5:8080</string>
-<!--	<string-array name="serverHostNames">-->
-
-<!--		<item>localhost:8080</item>-->
-<!--		<item>176.16.1.10:8080</item>-->
-<!--	</string-array>-->
+<!--	<string name="serverHostName">10.131.210.5:8080</string>-->
+	<string name="serverHostName">176.16.1.10:8080</string>
+<!--	<string name="serverHostName">localhost:8080</string>-->
 
 	<string name="categoryHttpPath">/category</string>
 	<string name="productHttpPath">/product</string>

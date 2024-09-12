@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 public class DataFetcher {
 		// VALUES
 		//	private static final Executor executor = Executors.newFixedThreadPool(2);
+		private static Cache requestCache;
+		private static Network requestNetwork;
 		private static RequestQueue requestQueue;
 		private static String serverHostName;
 		private static boolean useHttps;
@@ -45,19 +47,26 @@ public class DataFetcher {
 
 		// CONSTRUCTORS
 		public static void init(Context context) {
+				Log.d(TAG, "init: started");
+
 				Resources resources = context.getResources();
 				serverHostName = resources.getString(R.string.serverHostName);
 				useHttps = resources.getBoolean(R.bool.use_https);
 				requestTimeout = resources.getInteger(R.integer.requestTimeout);
-				Cache requestCache = new NoCache();
-				Network requestNetwork = new BasicNetwork(new HurlStack());
+
+				requestCache = new NoCache();
+				requestNetwork = new BasicNetwork(new HurlStack());
 				requestQueue = new RequestQueue(requestCache, requestNetwork);
+				requestQueue.start();
+
 				categoryHttpPath = resources.getString(R.string.categoryHttpPath);
 				categoryCache = new HashMap<>();
 
 				productHttpPath = resources.getString(R.string.productHttpPath);
 				productByCategoryHttpPath = resources.getString(R.string.productByCategoryHttpPath);
 				productCache = new HashMap<>();
+
+				Log.d(TAG, "init: finished");
 		}
 
 		// LOGGING
@@ -91,21 +100,23 @@ public class DataFetcher {
 
 				@Override
 				public void onErrorResponse(VolleyError error) {
-						Log.e(TAG, "error in request to " + this.requestUrl, error);
+						Log.e(TAG, "onErrorResponse: error in request to " + this.requestUrl, error);
 				}
 		}
 
 		private static class StringResponseHandler implements Response.Listener<String> {
 				public boolean handled;
 				private final Response.Listener<String> listener;
-
-				public StringResponseHandler(Response.Listener<String> listener) {
+				private final String url;
+				public StringResponseHandler(Response.Listener<String> listener, String url) {
 						this.handled = false;
 						this.listener = listener;
+						this.url = url;
 				}
 
 				@Override
 				public void onResponse(String response) {
+						Log.d(TAG, "onResponse: Received response from: " + url + ":\n" + response);
 						this.listener.onResponse(response);
 						this.handled = true;
 				}
@@ -113,6 +124,7 @@ public class DataFetcher {
 
 		// CATEGORY
 		private static void parseCategoryArray(String jsonString) {
+				Log.d(TAG, "parseCategoryArray: " + jsonString);
 				JSONArray jsonArray;
 				try {
 						jsonArray = new JSONArray(jsonString);
@@ -142,16 +154,21 @@ public class DataFetcher {
 		}
 		/** Gets all the categories from the webserver */
 		public static List<Category> getAllCategories() {
-				Log.d(TAG, "getAllCategories");
+
 				String url = Utils.getUrlString(serverHostName, categoryHttpPath, useHttps);
 				RequestErrorHandler errorHandler = new RequestErrorHandler(url);
-				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseCategoryArray);
+				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseCategoryArray, url);
 				StringRequest request = new StringRequest(url, responseHandler, errorHandler);
+
 				requestQueue.add(request);
 				requestQueue.start();
+
+				Log.d(TAG, "getAllCategories: waiting for get all categories request to " + url);
 				while (!errorHandler.handled && !responseHandler.handled) {
 						// WAITING FOR THE REQUEST TO FINISH
+						requestQueue.start();
 				}
+				Log.d(TAG, "getAllCategories: finished waitinf for get all categories request to " + url);
 
 				return new ArrayList<>(categoryCache.values());
 		}
@@ -174,7 +191,7 @@ public class DataFetcher {
 				String url = Utils.getUrlString(serverHostName, categoryHttpPath + "/" + id, useHttps);
 				Log.d(TAG, "loadCategory: " + url);
 				RequestErrorHandler errorHandler = new RequestErrorHandler(url);
-				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseCategory);
+				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseCategory, url);
 				StringRequest request = new StringRequest(url, responseHandler, errorHandler);
 				requestQueue.add(request);
 				requestQueue.start();
@@ -266,7 +283,7 @@ public class DataFetcher {
 				String url = Utils.getUrlString(serverHostName, productHttpPath + "/" + id, useHttps);
 				Log.d(TAG, "loadCategory: " + url);
 				RequestErrorHandler errorHandler = new RequestErrorHandler(url);
-				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseProduct);
+				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseProduct, url);
 
 				StringRequest request = new StringRequest(url, responseHandler, errorHandler);
 				requestQueue.add(request);
@@ -307,7 +324,7 @@ public class DataFetcher {
 				Log.d(TAG, "getProductsInCategory(" + category.toString() + ")");
 				String url = Utils.getUrlString(serverHostName, productByCategoryHttpPath + '/' + category.id, useHttps);
 				RequestErrorHandler errorHandler = new RequestErrorHandler(url);
-				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseProductArray);
+				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseProductArray, url);
 				StringRequest request = new StringRequest(url, responseHandler, errorHandler);
 				requestQueue.add(request);
 				requestQueue.start();

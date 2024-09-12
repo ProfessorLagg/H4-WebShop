@@ -47,8 +47,6 @@
         android:id="@+id/pageLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#1AFF00FF">
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        android:background="#1AFF00FF"/>
 
 </LinearLayout>
