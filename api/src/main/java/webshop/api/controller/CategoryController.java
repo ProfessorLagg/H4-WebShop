@@ -1,11 +1,11 @@
 package webshop.api.controller;
 
-import org.springframework.beans.factory.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import webshop.api.GlobalUtils;
-import webshop.api.model.*;
-import webshop.api.repository.*;
+import webshop.api.Utils;
+import webshop.api.model.Category;
+import webshop.api.repository.CategoryRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +19,7 @@ public class CategoryController {
 		// (C)RUD
 		@PostMapping
 		public ResponseEntity<Object> create(@RequestBody Category in) {
-				if (in.id != null && repository.existsById(in.id)) { return GlobalUtils.alreadyExists("category", in.id); }
+				if (in.id != null && repository.existsById(in.id)) { return Utils.alreadyExists("category", in.id); }
 				Category out = repository.save(in);
 				return ResponseEntity.ok(out);
 		}
@@ -34,7 +34,7 @@ public class CategoryController {
 						Category category = optional.get();
 						return ResponseEntity.ok(category);
 				} else {
-						return GlobalUtils.notFound("category", id);
+						return Utils.notFound("category", id);
 				}
 		}
 
@@ -47,7 +47,7 @@ public class CategoryController {
 						category.cloneFrom(in, false);
 						return ResponseEntity.ok(category);
 				} else {
-						return GlobalUtils.notFound("category", id);
+						return Utils.notFound("category", id);
 				}
 		}
 
@@ -60,7 +60,7 @@ public class CategoryController {
 						repository.delete(category);
 						return ResponseEntity.ok(category);
 				} else {
-						return GlobalUtils.notFound("category", id);
+						return Utils.notFound("category", id);
 				}
 		}
 }

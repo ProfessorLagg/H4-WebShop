@@ -2,6 +2,8 @@ package com.lagg.frontend.model;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,10 +51,11 @@ public class Category implements JsonSerializeable {
 	}
 
 
+	@NonNull
 	@Override
 	public String toString() {
 		String id_str = this.id == null ? "null" : this.id.toString();
 		String name_str = this.name == null ? "null" : this.name;
-		return "{\"id\"=" + id_str + ", \"name\"=\"" + name_str + "\"}";
+		return "{\"id\": " + id_str + ", \"name\": \"" + name_str + "\"}";
 	}
 }

@@ -1,13 +1,15 @@
 package webshop.api.controller;
 
-import org.springframework.beans.factory.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import webshop.api.GlobalUtils;
-import webshop.api.model.*;
-import webshop.api.repository.*;
+import webshop.api.Utils;
+import webshop.api.model.Product;
+import webshop.api.repository.ProductRepository;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/product")
@@ -18,7 +20,7 @@ public class ProductController {
 		// (C)RUD
 		@PostMapping
 		public ResponseEntity<Object> create(@RequestBody Product in) {
-				if (in.id != null && repository.existsById(in.id)) { return GlobalUtils.alreadyExists("product", in.id); }
+				if (in.id != null && repository.existsById(in.id)) { return Utils.alreadyExists("product", in.id); }
 				Product out = repository.save(in);
 				return ResponseEntity.ok(out);
 		}
@@ -33,7 +35,7 @@ public class ProductController {
 						Product product = optional.get();
 						return ResponseEntity.ok(product);
 				} else {
-						return GlobalUtils.notFound("product", id);
+						return Utils.notFound("product", id);
 				}
 		}
 
@@ -46,7 +48,7 @@ public class ProductController {
 						product.cloneFrom(in, false);
 						return ResponseEntity.ok(product);
 				} else {
-						return GlobalUtils.notFound("product", id);
+						return Utils.notFound("product", id);
 				}
 		}
 
@@ -59,7 +61,18 @@ public class ProductController {
 						repository.delete(product);
 						return ResponseEntity.ok(product);
 				} else {
-						return GlobalUtils.notFound("product", id);
+						return Utils.notFound("product", id);
+				}
+		}
+
+		@GetMapping("/bycat/{categoryId}")
+		public ResponseEntity<Object> getProductsInCategory(@PathVariable Integer categoryId) {
+				// TODO Figure out how you actually do a "SELECT * WHERE" query. This is why we hand-roll the SQL
+				List<Product> products = repository.findAll().stream().filter(p -> Objects.equals(p.category.id, categoryId)).toList();
+				if (products.isEmpty()) {
+						return Utils.notFound("products in category", categoryId);
+				} else {
+						return ResponseEntity.ok(products);
 				}
 		}
 }

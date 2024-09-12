@@ -28,6 +28,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
+    // https://mvnrepository.com/artifact/org.thymeleaf/thymeleaf
+    implementation("org.thymeleaf:thymeleaf:3.1.2.RELEASE")
+
+
 //	testImplementation("org.springframework.boot:spring-boot-starter-test")
 //	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
