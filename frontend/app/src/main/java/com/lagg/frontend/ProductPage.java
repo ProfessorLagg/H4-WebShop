@@ -25,7 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ProductPage extends ConstraintLayout {
-		private static final String TAG = "ProductBanner";
+		private static final String TAG = "ProductPage";
 
 		private final Product product;
 
@@ -41,7 +41,6 @@ public class ProductPage extends ConstraintLayout {
 		private ImageView product_page_image;
 		private View product_page_cart_btn;
 		private void init() {
-
 				contentView = inflate(getContext(), R.layout.layout_product_page, this);
 				Resources resources = contentView.getResources();
 				product_page_title = contentView.findViewById(R.id.product_page_title);

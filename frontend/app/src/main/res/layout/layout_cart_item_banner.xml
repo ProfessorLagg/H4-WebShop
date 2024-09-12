@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center">
+
+
+    <RelativeLayout
+        android:id="@+id/cart_item_banner_controls_wrap"
+        android:minHeight="64dp"
+        android:minWidth="64dp"
+        android:layout_width="128dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0">
+
+        <TextView
+            android:id="@+id/cart_item_banner_count"
+            android:text="1"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentTop="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@android:style/TextAppearance.Material.Display1"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/cart_item_banner_remove_item_btn"
+            android:layout_below="@id/cart_item_banner_decrement_count"
+            android:text="Remove"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/md_theme_errorContainer_mediumContrast"
+            android:textColor="@color/md_theme_onErrorContainer"
+            app:icon="@drawable/rounded_delete_24"
+            app:iconTint="@color/md_theme_onErrorContainer" />
+
+        <Button
+            android:id="@+id/cart_item_banner_increment_count"
+            android:text="+"
+            android:layout_below="@id/cart_item_banner_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/md_theme_primary"
+            android:textColor="@color/md_theme_onPrimary"
+            android:textStyle="bold"
+            android:typeface="monospace" />
+
+        <Button
+            android:id="@+id/cart_item_banner_decrement_count"
+            android:text="-"
+            android:layout_below="@id/cart_item_banner_increment_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/md_theme_primary"
+            android:textColor="@color/md_theme_onPrimary"
+            android:typeface="monospace"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/cart_item_banner_title"
+        android:text="product title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="viewStart"
+        android:textAppearance="@android:style/TextAppearance.Material.Medium"
+        android:layout_weight="1"
+        android:paddingLeft="16dp" />
+
+
+</LinearLayout>

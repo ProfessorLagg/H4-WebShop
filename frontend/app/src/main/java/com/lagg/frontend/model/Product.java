@@ -4,15 +4,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.lagg.frontend.ArrayListMap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public class Product implements JsonSerializeable {

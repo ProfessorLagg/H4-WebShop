@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -48,8 +49,11 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		private ViewGroup pageLayout;
+		private ImageButton cart_show_button;
 		private void init() {
 				this.pageLayout = (ViewGroup) findViewById(R.id.pageLayout);
+				cart_show_button = (ImageButton) findViewById(R.id.cart_show_button);
+				cart_show_button.setOnClickListener(v -> displayCartPage());
 				this.displayPageCategories();
 		}
 
@@ -165,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 				return result;
 		}
 		public void displayProductsInCategoryPage(Category category) {
-				Log.i(TAG, "displayCategoryPage: " + category.toString());
+				Log.i(TAG, "displayProductsInCategoryPage: " + category.toString());
 
 				Resources resources = getResources();
 				Resources.Theme theme = getTheme();
@@ -206,14 +210,35 @@ public class MainActivity extends AppCompatActivity {
 												Log.e(getLocalClassName(), "Error");
 										}
 								}));
-
-				Log.i(getLocalClassName(), "Awaiting completion");
 		}
 
 		public void displayProductPage(Product product) {
 				Log.i(TAG, "displayProductPage: " + product.toString());
-
+				Resources resources = getResources();
+				Resources.Theme theme = getTheme();
 				pageLayout.removeAllViews();
+				Button backButton = new Button(pageLayout.getContext());
+				backButton.setText("< " + product.category.name);
+				backButton.layout(0, 0, 0, 0);
+				backButton.setBackgroundColor(resources.getColor(R.color.md_theme_primary, theme));
+				backButton.setTextColor(resources.getColor(R.color.md_theme_onPrimary, theme));
+				backButton.setOnClickListener(v -> displayPageCategories());
+				pageLayout.addView(backButton);
 				pageLayout.addView(new ProductPage(pageLayout.getContext(), product));
+		}
+
+		public void displayCartPage() {
+				Log.i(TAG, "displayCartPage");
+				Resources resources = getResources();
+				Resources.Theme theme = getTheme();
+				pageLayout.removeAllViews();
+				Button backButton = new Button(pageLayout.getContext());
+				backButton.setText("< Back");
+				backButton.layout(0, 0, 0, 0);
+				backButton.setBackgroundColor(resources.getColor(R.color.md_theme_primary, theme));
+				backButton.setTextColor(resources.getColor(R.color.md_theme_onPrimary, theme));
+				backButton.setOnClickListener(v -> displayPageCategories());
+				pageLayout.addView(backButton);
+				pageLayout.addView(new CartPage(pageLayout.getContext()));
 		}
 }

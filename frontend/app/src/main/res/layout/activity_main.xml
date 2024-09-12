@@ -24,12 +24,13 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:minHeight="48dp"
-            android:minWidth="48dp">
+            android:minWidth="48dp"
+            android:visibility="gone">
 
         </SearchView>
 
         <ImageButton
-            android:id="@+id/accountButtop"
+            android:id="@+id/cart_show_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
@@ -38,7 +39,7 @@
             android:padding="0dp"
             android:backgroundTint="@color/md_theme_surface"
             android:contentDescription="Account"
-            app:srcCompat="@drawable/baseline_account_circle_24"
+            app:srcCompat="@drawable/baseline_shopping_cart_24"
             app:tint="@color/md_theme_onSurface" />
 
     </LinearLayout>
