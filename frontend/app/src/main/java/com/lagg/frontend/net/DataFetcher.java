@@ -158,18 +158,17 @@ public class DataFetcher {
 				String url = Utils.getUrlString(serverHostName, categoryHttpPath, useHttps);
 				RequestErrorHandler errorHandler = new RequestErrorHandler(url);
 				StringResponseHandler responseHandler = new StringResponseHandler(DataFetcher::parseCategoryArray, url);
-				StringRequest request = new StringRequest(url, responseHandler, errorHandler);
+				StringRequest request = new StringRequest(url, (String response) -> { Log.d(TAG, "onResponse: Received response: " + response); }, errorHandler);
 
 				requestQueue.add(request);
 				requestQueue.start();
 
 				Log.d(TAG, "getAllCategories: waiting for get all categories request to " + url);
-				while (!errorHandler.handled && !responseHandler.handled) {
-						// WAITING FOR THE REQUEST TO FINISH
-						requestQueue.start();
-				}
-				Log.d(TAG, "getAllCategories: finished waitinf for get all categories request to " + url);
-
+//				while (!errorHandler.handled && !responseHandler.handled) {
+//						// WAITING FOR THE REQUEST TO FINISH
+//				}
+				Log.d(TAG, "getAllCategories: finished waiting for get all categories request to " + url);
+				request.cancel();
 				return new ArrayList<>(categoryCache.values());
 		}
 

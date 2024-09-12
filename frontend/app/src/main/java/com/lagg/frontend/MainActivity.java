@@ -10,6 +10,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.lagg.frontend.model.Category;
 import com.lagg.frontend.net.DataFetcher;
 import com.lagg.frontend.net.HttpRequest;
@@ -26,6 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -57,87 +65,70 @@ public class MainActivity extends AppCompatActivity {
 				this.displayPageCategories();
 		}
 
-		private void displayPageCategories() {
-				ArrayList<Category> categories = new ArrayList<>(this.getAllCategories());
-				pageLayout.removeAllViews();
-
-				for (Category category : categories) {
-						Log.d(TAG, "displayPageCategories: Creating banner for category " + category.toString());
-						CategoryBanner banner = new CategoryBanner(pageLayout.getContext(), category);
-						pageLayout.addView(banner);
-				}
-		}
-
-		private byte[] getRequest(URL url) {
-				try {
-						Callable<byte[]> callable = () -> {
-								try {
-
-										HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-										InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-										byte[] buffer = new byte[in.available()]; /* 1073741824 bytes == 1gb */
-										int readsize = in.read(buffer);
-										urlConnection.disconnect();
-										return buffer;
-								} catch (Exception e) {
-										Log.d(TAG, "getAllCategories: ", e);
-										return new byte[0];
-								}
-						};
-
-						FutureTask<byte[]> promise = new FutureTask<>(callable);
-						promise.run();
-						return promise.get();
-				} catch (Exception e) {
-						Log.d(TAG, "getRequest: ", e);
-						return new byte[0];
-				}
-		}
-
 		private static List<Category> parseCategoryArray(String jsonString) {
-				if (Utils.isNullOrWhitespace(jsonString)) { return Collections.emptyList(); }
 				ArrayList<Category> result = new ArrayList<>();
+
+				Log.d(TAG, "parseCategoryArray: " + jsonString);
+				JSONArray jsonArray;
 				try {
-						JSONArray jarr = new JSONArray(jsonString);
-						int len = jarr.length();
-						for (int i = 0; i < len; i++) {
-								try {
-										JSONObject jobj = jarr.getJSONObject(i);
-										Category category = new Category();
-										category.loadJson(jobj);
-										result.add(category);
-								} catch (JSONException e) {
-										Log.e(TAG, "parseCategoryArray: could not parse item at index " + i + " in '" + jsonString +
-														"' as a Category");
-								}
-						}
-				} catch (Exception e) {
-						Log.e(TAG, "parseCategoryArray: ", e);
+						jsonArray = new JSONArray(jsonString);
+				} catch (JSONException je) {
+						Log.e(TAG, "parseAllCategories: could not parse '" + jsonString + "' as a JSON array", je);
 						return Collections.emptyList();
+				}
+
+				int len = jsonArray.length();
+				for (int i = 0; i < len; i++) {
+						try {
+								JSONObject jsonObject = jsonArray.getJSONObject(i);
+								Optional<Category> categoryOptional = Category.fromJSONObject(jsonObject);
+								if (categoryOptional.isPresent()) {
+										Category category = categoryOptional.get();
+										if (category.id != null && category.id > 0) {
+												result.add(category);
+										}
+								} else {
+										Log.e(TAG, "parseCategoryArray: could not convert JSONObject '" + jsonObject.toString() +
+														"' to Category");
+								}
+						} catch (JSONException je) {
+								Log.d(TAG, "parseCategoryArray: could not get JSON object at index " + i);
+						}
 				}
 				return result;
 		}
+		private void displayPageCategories() {
+				Log.i(getLocalClassName(), "Request");
 
-		/** Gets all the categories from the webserver */
-		public List<Category> getAllCategories() {
 				Resources resources = getResources();
-				String serverHostName = resources.getString(R.string.serverHostName);
-				int requestTimeout = resources.getInteger(R.integer.requestTimeout);
+				String url = Utils.getUrlString(resources.getString(R.string.serverHostName),
+								resources.getString(R.string.categoryHttpPath), false);
 
-				String categoryHttpPath = resources.getString(R.string.categoryHttpPath);
-				boolean useHttps = resources.getBoolean(R.bool.use_https);
+				RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+				queue.start();
+				queue.add(new StringRequest(
+								Request.Method.GET,
+								url,
+								new Response.Listener<String>() {
+										@Override
+										public void onResponse(String response) {
+												Log.i(getLocalClassName(), "Response Received");
+												pageLayout.removeAllViews();
+												for (Category category : parseCategoryArray(response)) {
+														Log.d(TAG, "displayPageCategories: Creating banner for category " + category.toString());
+														CategoryBanner banner = new CategoryBanner(pageLayout.getContext(), category);
+														pageLayout.addView(banner);
+												}
+												Log.i(getLocalClassName(), "Response Done");
+										}
+								},
+								new Response.ErrorListener() {
+										@Override
+										public void onErrorResponse(VolleyError error) {
+												Log.e(getLocalClassName(), "Error");
+										}
+								}));
 
-				String url = Utils.getUrlString(serverHostName, categoryHttpPath, useHttps);
-				HttpRequest request = new HttpRequest(url);
-				FutureTask<HttpResponse> responseFuture = request.getTask();
-				this.executor.execute(responseFuture);
-				try {
-						HttpResponse response = responseFuture.get();
-						String jsonString = new String(response.body, StandardCharsets.UTF_8);
-						return parseCategoryArray(jsonString);
-				} catch (Exception e) {
-						Log.e(TAG, "getAllCategories: error trying to get or parse HttpResponse", e);
-						return Collections.emptyList();
-				}
+				Log.i(getLocalClassName(), "Awaiting completion");
 		}
 }
