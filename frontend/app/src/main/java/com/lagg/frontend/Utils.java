@@ -1,15 +1,17 @@
 package com.lagg.frontend;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.provider.Settings;
+import android.provider.Settings.Secure;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-
-import kotlin.text.UStringsKt;
 
 public class Utils {
 		public static String trimStart(String s, char c) {
@@ -166,5 +168,10 @@ public class Utils {
 				if (isNullOrEmpty(str)) { return true; } for (char c : str.toCharArray()) {
 						if (!isWhitespaceChar(c)) { return false; }
 				} return true;
+		}
+
+		@SuppressLint("HardwareIds")
+		public static String getDeviceId(Context context) {
+				return Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
 		}
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 														Log.d(TAG, "displayPageCategories: Creating banner for category " + category.toString());
 														CategoryBanner banner = new CategoryBanner(pageLayout.getContext(), category);
 														View btn = banner.findViewById(R.id.categoryTitle);
-														btn.setOnClickListener(v -> displayCategoryPage(banner.category));
+														btn.setOnClickListener(v -> displayProductsInCategoryPage(banner.category));
 														pageLayout.addView(banner);
 												}
 												Log.i(getLocalClassName(), "Response Done");
@@ -163,10 +164,11 @@ public class MainActivity extends AppCompatActivity {
 				}
 				return result;
 		}
-		public void displayCategoryPage(Category category) {
+		public void displayProductsInCategoryPage(Category category) {
 				Log.i(TAG, "displayCategoryPage: " + category.toString());
 
 				Resources resources = getResources();
+				Resources.Theme theme = getTheme();
 				String url = Utils.getUrlString(
 								resources.getString(R.string.serverHostName),
 								resources.getString(R.string.productByCategoryHttpPath) + '/' + category.id.toString(),
@@ -182,9 +184,17 @@ public class MainActivity extends AppCompatActivity {
 										public void onResponse(String response) {
 												Log.i(getLocalClassName(), "Response Received");
 												pageLayout.removeAllViews();
+												Button backButton = new Button(pageLayout.getContext());
+												backButton.setText("< Categories");
+												backButton.layout(0, 0, 0, 0);
+												backButton.setBackgroundColor(resources.getColor(R.color.md_theme_primary, theme));
+												backButton.setTextColor(resources.getColor(R.color.md_theme_onPrimary, theme));
+												backButton.setOnClickListener(v -> displayPageCategories());
+												pageLayout.addView(backButton);
 												for (Product product : parseProductArray(response)) {
 														Log.d(TAG, "displayPageCategories: Creating banner for product " + product.toString());
 														ProductBanner banner = new ProductBanner(pageLayout.getContext(), product);
+														banner.setOnClickListener(v -> displayProductPage(product));
 														pageLayout.addView(banner);
 												}
 												Log.i(getLocalClassName(), "Response Done");
@@ -200,4 +210,10 @@ public class MainActivity extends AppCompatActivity {
 				Log.i(getLocalClassName(), "Awaiting completion");
 		}
 
+		public void displayProductPage(Product product) {
+				Log.i(TAG, "displayProductPage: " + product.toString());
+
+				pageLayout.removeAllViews();
+				pageLayout.addView(new ProductPage(pageLayout.getContext(), product));
+		}
 }

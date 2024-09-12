@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="@android:style/TextAppearance.Material.Display1"
         android:textAlignment="viewStart"
-        android:layout_margin="34sp" />
+        android:layout_marginBottom="34sp" />
 
     <TextView
         android:id="@+id/product_page_description"
@@ -41,12 +41,15 @@
         app:srcCompat="@drawable/placeholder" />
 
     <ImageButton
-        android:id="@+id/product_page_cart"
+        android:id="@+id/product_page_cart_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@id/product_page_image"
+        android:layout_centerHorizontal="true"
         android:layout_below="@id/product_page_image"
+        android:background="#00000000"
+        android:minHeight="64dp"
+        android:minWidth="64dp"
+        android:scaleType="fitCenter"
         app:srcCompat="@drawable/outline_add_shopping_cart_24"
-        android:background="@color/md_theme_surface"
-        app:tint="@color/md_theme_onBackground"/>
+        app:tint="@color/md_theme_onBackground" />
 </RelativeLayout>

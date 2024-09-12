@@ -5,14 +5,21 @@ import webshop.api.Utils;
 
 @Entity
 public class CartItem {
-		@Column(name = "name")
+		@Id
+		@Column(name = "deviceId", columnDefinition = "VARCHAR(MAX)")
 		public String deviceId;
 
 		public Integer productId;
 
 		public Integer count;
 
-		public CartItem(String deviceId, Integer productId){
+		public CartItem() {
+				deviceId = "";
+				productId = 0;
+				count = 1;
+		}
+
+		public CartItem(String deviceId, Integer productId) {
 				this.deviceId = deviceId;
 				this.productId = productId;
 				this.count = 1;

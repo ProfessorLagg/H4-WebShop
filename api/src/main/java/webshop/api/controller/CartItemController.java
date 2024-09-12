@@ -73,7 +73,7 @@ public class CartItemController {
 				return ResponseEntity.ok(item);
 		}
 
-		@DeleteMapping("/{deviceId}")
+		@DeleteMapping("/{deviceId}/clear")
 		public ResponseEntity<Object> clearCart(@PathVariable String deviceId) {
 				List<CartItem> items = getDeviceCart(deviceId);
 				for (CartItem item : items) { repository.delete(item); }
