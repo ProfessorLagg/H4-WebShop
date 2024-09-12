@@ -96,8 +96,6 @@ public class ProductPage extends ConstraintLayout {
 												} catch (Exception e) {
 														Log.e(TAG, "onResponse: ", e);
 												}
-
-
 												Log.i(TAG, "onResponse: Response Done");
 										}
 								},
