@@ -48,4 +48,6 @@ public class ProductPage extends ConstraintLayout {
 				productImage.setOnClickListener(v -> this.callOnClick());
 				productName.setOnClickListener(v -> this.callOnClick());
 		}
+
+		
 }

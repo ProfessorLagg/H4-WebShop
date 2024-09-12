@@ -2,7 +2,6 @@ package webshop.api.model;
 
 import jakarta.persistence.*;
 
-//@Embeddable
 @Entity
 public class Category {
 		@Id
