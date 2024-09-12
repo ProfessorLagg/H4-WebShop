@@ -33,17 +33,6 @@ public class ImageController {
 		@PostMapping("/{name}")
 		public ResponseEntity<Object> create(@PathVariable String name, @RequestBody String base64) throws IOException {
 				byte[] data = Base64.getDecoder().decode(base64);
-				try {
-						final File outputFile = new File("C:\\Temp-NVME\\SpringDebug\\" + name);
-						if (outputFile.exists()) {
-								outputFile.delete();
-						}
-						outputFile.createNewFile();
-						try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-								outputStream.write(data);
-						}
-				} catch (Exception e) { }
-
 				return createOrUpdate(name, data);
 		}
 
@@ -69,17 +58,6 @@ public class ImageController {
 		@PutMapping("/{name}")
 		public ResponseEntity<Object> update(@PathVariable String name, @RequestBody String base64) throws IOException {
 				byte[] data = Base64.getDecoder().decode(base64);
-				try {
-						final File outputFile = new File("C:\\Temp-NVME\\SpringDebug\\" + name);
-						if (outputFile.exists()) {
-								outputFile.delete();
-						}
-						outputFile.createNewFile();
-						try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
-								outputStream.write(data);
-						}
-				} catch (Exception e) { }
-
 				return createOrUpdate(name, data);
 		}
 

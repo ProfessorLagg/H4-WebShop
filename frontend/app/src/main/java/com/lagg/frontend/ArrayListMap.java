@@ -56,7 +56,7 @@ public class ArrayListMap<TKey, TVal> implements Map<TKey, TVal> {
 		@Override
 		public TVal get(@Nullable Object key) {
 				if (key == null) {
-						return null
+						return null;
 				}
 				int index = keys.indexOf(key);
 				if (index < 0 || index > keys.size()) {
@@ -94,8 +94,11 @@ public class ArrayListMap<TKey, TVal> implements Map<TKey, TVal> {
 
 		@Override
 		public void putAll(@NonNull Map<? extends TKey, ? extends TVal> m) {
-				for (Entry<TKey, TVal> entry : m) {
-						this.put(entry.getKey(), entry.getValue());
+				for (Entry<? extends TKey, ? extends TVal> entry : m.entrySet()) {
+						if(entry.getKey() != null){
+								this.put(entry.getKey(), entry.getValue());
+						}
+
 				}
 		}
 
